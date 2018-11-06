@@ -1,10 +1,9 @@
-﻿using NServiceBusPoC.BussinesLogic.Entities.UserDomain;
+﻿using Microsoft.Extensions.FileProviders;
+using NServiceBusPoC.BussinesLogic.Entities.UserDomain;
 using NServiceBusPoC.Core.Entities;
 using NServiceBusPoC.Core.Persistance;
 using NServiceBusPoC.Core.Persistance.Entities;
 using NServiceBusPoC.Core.Persistance.Repositories;
-using NServiceBusPoC.Core.Utils.SmtpMethods;
-using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,9 +71,6 @@ namespace NServiceBusPoC.BussinesLogic.UserDomain
 
                 _emailConfirmationRepository.AddEmailConfirmation(userdb.Email, userdb.RoleId, guidGenerate, (TimeSpan)configuration.ValueFormated);
 
-                //Send the email to the SMTP server.
-                SendWelcomeEmail(userdb.Email, guidGenerate);
-
                 _genericUoW.SaveChanges();
 
                 return true;
@@ -83,34 +79,6 @@ namespace NServiceBusPoC.BussinesLogic.UserDomain
             {
                 throw new Exception("Problem creating a new user", e.InnerException);
             }
-
-        }
-
-        private void SendWelcomeEmail(string userToSend, Guid guidGenerate)
-        {
-
-            //get the credential using the configuration database and call the SMTP server
-            var configurationsValue = _appConfigurationRepository.GetAll();
-
-            string host = configurationsValue.First(c => c.ConfigurationId == (int)AppConfigurationEnum.SMTPHostName).ValueFormated.ToString();
-            string userName = configurationsValue.First(c => c.ConfigurationId == (int)AppConfigurationEnum.SMTPUser).ValueFormated.ToString();
-            string password = configurationsValue.First(c => c.ConfigurationId == (int)AppConfigurationEnum.SMTPPassword).ValueFormated.ToString();
-            string mailAddress = configurationsValue.First(c => c.ConfigurationId == (int)AppConfigurationEnum.EmailAddress).ValueFormated.ToString();
-            string bodyLocationDir = configurationsValue.First(c => c.ConfigurationId == (int)AppConfigurationEnum.EmailConfirmationBodyLocation).ValueFormated.ToString();
-            string subjectEmail = configurationsValue.First(c => c.ConfigurationId == (int)AppConfigurationEnum.EmailConfirmationSubject).ValueFormated.ToString();
-
-            NServiceBusPoCSmtpClient _smtpClient = new NServiceBusPoCSmtpClient()
-            {
-                BodyLocationDir = bodyLocationDir,
-                MailAddress = mailAddress,
-                Password = password,
-                SMTPHostName = host,
-                Username = userName,
-                Subject = subjectEmail
-            };
-
-
-            _smtpClient.SendWelcomeEmail(guidGenerate.ToString(), userToSend);
 
         }
 
