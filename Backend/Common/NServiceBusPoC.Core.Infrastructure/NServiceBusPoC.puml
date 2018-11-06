@@ -1,0 +1,159 @@
+﻿@startuml
+
+package "UserDomain"
+{
+	class User
+	{
+		+int UserId
+		+string Name
+		+string Surname
+		+string SecondName
+		+string SecondSurname
+		+string Password
+		+Boolean Enabled
+		+int RoleId
+		+string Email
+		+string Street
+		+string Country
+		+string Nationality
+		+string DNI
+		+string SocialNumber
+	}
+
+	hide https://en.wikipedia.org/wiki/National_Insurance_number
+
+	class Role
+	{
+		+int RoleId
+		+string RoleName
+		+string RoleDescription
+	}
+
+	User "1" *-- "1" Role : RoleId
+
+	class EmailConfirmation
+	{
+		+int UserId
+		+DateTime CreatedEmail
+		+DateTime ExpiredDate
+		+string GuidUrl
+		+Boolean Consumed
+	}
+
+	User "1" *-- "many" EmailConfirmation : UserId
+
+	class Child
+	{
+		+int UserId
+		+DateTime BirthDate
+	}
+
+	User "1" *-- "1" Child : UserId
+
+	class Parent
+	{
+		+int UserId
+		+string AccountNumber
+	}
+
+	User "1" *-- "1" Parent : UserId
+
+	class Coach
+	{
+		+int UserId
+		+double ExperienceInYears
+	}
+
+	User "1" *-- "1" Coach : UserId
+
+}
+
+package ClubDomain
+{
+
+	class CoachTrainerUK
+	{
+		+int UserId
+		+int TrainerRoleId
+		+int TrainerCourseId
+	}
+
+	Coach "1" *-- "many" CoachTrainerUK : UserId
+
+	class TrainerRoleUK
+	{
+		+int TrainerRoleId
+		+string TrainerRoleName
+		+string TrainerRoleDescription
+	}
+
+	class TrainerCourseUK
+	{
+		+int TrainerCourseId
+		+string TrainerCourseName
+		+string TrainerCourseDescription
+	}
+
+	CoachTrainerUK "1" *-- "1" TrainerRoleUK : TrainerRoleId
+	CoachTrainerUK "1" *-- "1" TrainerCourseUK : TrainerCourseId
+	hide https://www.englandrugby.com/mm/Document/MyRugby/Coaches/01/32/52/75/RFUTrainingCourseBooklet_English.pdf
+
+	class Club
+	{
+		+int ClubId
+		+string ClubName
+		+string Location 
+		+int LimitDateChild 
+		+string Contact
+		+int NumberOfCoach
+	}
+
+	class Sport
+	{
+		+int SportId
+		+string SportName
+		+string SportDescription
+	}
+
+	class ClubRecord
+	{
+		+int CoachId
+		+int ParentId
+		+int ChildId
+		+int SportId
+		+int ClubId
+		+DateTime RecordCreated
+		+int StateClubRecordId
+	}
+
+	Coach "1" *-- "many" ClubRecord : CoachId
+	Parent "1" *-- "many" ClubRecord : ParentId
+	Child "1" *-- "many" ClubRecord : ChildId
+	Club "1" *-- "many" ClubRecord : ClubId
+
+
+	class ClubSport
+	{
+		+int ClubId
+		+int SportId
+	}
+
+	Club "1" *-- "many" ClubSport : ClubId
+	ClubSport "1" *-- "1" Sport : SportId
+
+}
+
+package "ConfigurationDomain"
+{
+	class Configuration
+	{
+		+int ConfigurationId
+		+string ConfigurationName
+		+string ConfigurationData
+		+string ConfigurationDescription
+		+DateTime ConfigurationCreated
+	}
+}
+
+
+@enduml
